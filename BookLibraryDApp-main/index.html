@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>Book Library App</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Book Library App</h1>
+
+        <div>
+            <h2>Add New Book</h2>
+            <label for="title">Title:</label>
+            <input type="text" id="title" required>
+            <label for="author">Author:</label>
+            <input type="text" id="author" required>
+            <label for="copies">Number of Copies:</label>
+            <input type="number" id="copies" required>
+            <button onclick="addBook()">Add Book</button>
+        </div>
+
+        <div>
+            <h2>Get Book Details</h2>
+            <label for="bookId">Book ID:</label>
+            <input type="number" id="bookId" required>
+            <button onclick="getBookDetails(bookId)">Get Details</button>
+            <div id="bookDetails"></div>
+        </div>
+    </div>
+
+</body>
+
+
+<script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js"
+type="application/javascript"></script>
+
+<script>
+    // constract address, contract abi, metamask 
+    const contractAddress ="0x5FbDB2315678afecb367f032d93F642f64180aa3" ;
+    const contractABI = [
+    {
+      "inputs": [],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "bookId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "title",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "author",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "copies",
+          "type": "uint256"
+        }
+      ],
+      "name": "BookAdded",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_title",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "_author",
+          "type": "string"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_copies",
+          "type": "uint256"
+        }
+      ],
+      "name": "addBook",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "bookCounter",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "books",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "title",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "author",
+          "type": "string"
+        },
+        {
+          "internalType": "uint256",
+          "name": "copies",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_bookId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getBookDetails",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ];
+
+  const provider = new ethers.providers.Web3Provider(window.ethereum);
+  provider.send("eth_requestAccounts", []);
+  const signer = provider.getSigner();
+
+  const bookLibraryContract = new ethers.Contract(contractAddress, contractABI, signer);
+
+ 
+  async function getData(){
+    
+    const data = await setgetcontract.getData();
+    document.getElementById("showData").innerText = ` Data : ${data} ` ;
+   
+  }
+
+  async function addBook() {
+    const title = document.getElementById('title').value;
+    const author = document.getElementById('author').value;
+    const copies = document.getElementById('copies').value;
+
+    await bookLibraryContract.addBook(title, author, copies);
+    alert('Book added successfully!');
+    console.log("title: ",  title);
+    console.log("author: ",  author);
+    console.log("copies: ",  copies);
+}
+
+async function getBookDetails(bookId) {
+  
+  try {
+        // Check if bookId is undefined
+        if (typeof bookId === 'undefined') {
+            throw new Error("Book ID is undefined");
+        }
+       
+        // Call the contract method to get book details
+        const bookDetails = await bookLibraryContract.getBookDetails(bookId);
+
+        // Display the book details
+        console.log("Title:", bookDetails[0]);
+        console.log("Author:", bookDetails[1]);
+        console.log("Number of Copies:", bookDetails[2]);
+
+      
+    } catch (error) {
+        // Handle errors if any
+        console.error("Error fetching book details:", error);
+    }
+  
+ 
+}
+
+
+
+
+</script>
+</html>
